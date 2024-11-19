@@ -1,0 +1,8 @@
+fastapi
+pymongo
+uvicorn
+pydantic
+poetry
+fastapi-jwt-auth
+python-multipart
+aiocache 

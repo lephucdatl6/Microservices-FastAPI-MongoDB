@@ -1,0 +1,86 @@
+version: "3.8"
+
+services:
+  db:
+    container_name: mongo-dev
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+      - MONGO_INITDB_DATABASE=waste_management
+    networks: 
+      - mongo-compose-network
+    ports:
+      - '27017:27017'
+    volumes: 
+      - ./data:/data/db
+  
+  mongo-express:
+    container_name: mongo-express
+    image: mongo-express
+    depends_on:
+      - db
+    networks: 
+      - mongo-compose-network
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo-dev
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=pass
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=tribes
+    ports:
+      - '8081:8081'
+    volumes: 
+      - ./data:/data/db      
+
+  user-service:
+    build: ./microservices/user-service
+    environment:
+      - MONGO_URL=mongodb+srv://lephucdat:userid@fgwweb2.b7gke.mongodb.net/?retryWrites=true&w=majority&appName=FGWWeb2
+      - DATABASE_NAME=users
+    networks:
+      - mongo-compose-network
+    ports:
+      - "8010:8010"
+    depends_on:
+      - db
+
+  waste-category-service:
+    build: ./microservices/waste-category-service
+    environment:
+      - MONGO_URL=mongodb+srv://lephucdat:userid@fgwweb2.b7gke.mongodb.net/?retryWrites=true&w=majority&appName=FGWWeb2
+      - DATABASE_NAME=waste_categories
+    networks:
+      - mongo-compose-network
+    ports:
+      - "8020:8020"
+    depends_on:
+      - db
+
+  waste-item-service:
+    build: ./microservices/waste-item-service
+    environment:
+      - MONGO_URL=mongodb+srv://lephucdat:userid@fgwweb2.b7gke.mongodb.net/?retryWrites=true&w=majority&appName=FGWWeb2
+      - DATABASE_NAME=waste_items
+    networks:
+      - mongo-compose-network
+    ports:
+      - "8030:8030"
+    depends_on:
+      - db
+
+  challenge-service:
+    build: ./microservices/challenge-service
+    environment:
+      - MONGO_URL=mongodb+srv://lephucdat:userid@fgwweb2.b7gke.mongodb.net/?retryWrites=true&w=majority&appName=FGWWeb2
+      - DATABASE_NAME=challenges
+    networks:
+      - mongo-compose-network
+    ports:
+      - "8040:8040"
+    depends_on:
+      - db
+
+networks:
+  mongo-compose-network:
+    driver: bridge
